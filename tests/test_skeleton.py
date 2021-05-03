@@ -1,6 +1,6 @@
 import pytest
 
-from vic_renttoprice_ratio.skeleton import fib, main
+from src.vic_renttoprice_ratio.skeleton import fib, main
 
 __author__ = "EvenW"
 __copyright__ = "EvenW"

@@ -150,4 +150,4 @@ raw_data['Unit_Price'] = raw_data['Unit_Price'].astype(float)
 raw_data['House_rate'] = raw_data['House_Price']/raw_data['House_rent']/52
 raw_data['Unit_rate'] = raw_data['Unit_Price']/raw_data['Flat_rent']/52
 
-raw_data.to_csv("../../data/processed/raw_data.csv")
+# raw_data.to_csv("../../data/processed/raw_data.csv")

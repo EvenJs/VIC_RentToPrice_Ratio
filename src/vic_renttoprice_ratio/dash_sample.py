@@ -1,42 +1,45 @@
-import pandas as pd
+import os
 import requests
+import pandas as pd
+
 # import plotly.express as px  # (version 4.7.0)
 import plotly.graph_objects as go
-
 import dash  # (version 1.12.0) pip install dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
+
+def get_data():
+    raw_data = pd.read_csv("../../data/processed/raw_data.csv")
+    raw_data = raw_data.drop(columns=['Unnamed: 0'])
+    return raw_data
+
+
+def get_map():
+    # get geojson file from the link
+    url = 'https://data.gov.au/geoserver/vic-suburb-locality-boundaries-psma-administrative-boundaries/wfs?request=' \
+          'GetFeature&typeName=ckan_af33dd8c_0534_4e18_9245_fc64440f742e&outputFormat=json'
+    res = requests.get(url)
+    # vic_map = json.loads(res)
+    vic_json = res.json()
+
+    return vic_json
+
+
+
+
 app = dash.Dash(__name__)
-
-# ---------- Import and clean data (importing csv into pandas)
-# df = pd.read_csv("intro_bees.csv")
-mapbox_access_token = 'pk.eyJ1IjoiZXZlbnciLCJhIjoiY2ttdmpvZTRzMDJrYzJubzE4NW55a3FhaCJ9.hkBgcquyzZwavOoe6DbSZw'
-
-# get geojson file from the link
-url = 'https://data.gov.au/geoserver/vic-suburb-locality-boundaries-psma-administrative-boundaries/wfs?request=' \
-      'GetFeature&typeName=ckan_af33dd8c_0534_4e18_9245_fc64440f742e&outputFormat=json'
-res = requests.get(url)
-# vic_map = json.loads(res)
-vic_map = res.json()
-
-data = pd.read_csv("../../data/processed/raw_data.csv")
-data = data.drop(columns=['Unnamed: 0'])
-
-
 # ------------------------------------------------------------------------------
 # App layout
 app.layout = html.Div([
-
     html.H1("Web Application Dashboards with Dash", style={'text-align': 'center'}),
-
     dcc.Dropdown(id="slct_year",
                  options=[
-                     {"label": "2020", "value": 2020},
-                     {"label": "2019", "value": 2019},
-                     {"label": "2018", "value": 2018},
-                     {"label": "2017", "value": 2017}],
+                    {"label": "2020", "value": 2020},
+                    {"label": "2019", "value": 2019},
+                    {"label": "2018", "value": 2018},
+                    {"label": "2017", "value": 2017}],
                  multi=False,
                  value=2020,
                  style={'width': "40%"}
@@ -44,11 +47,8 @@ app.layout = html.Div([
 
     html.Div(id='output_container', children=[]),
     html.Br(),
-
     dcc.Graph(id='my_bee_map', figure={})
-
 ])
-
 
 # ------------------------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
@@ -86,7 +86,6 @@ def update_graph(option_slctd):
         data=[go.Choroplethmapbox(
             geojson=vic_map,
             featureidkey="properties.vic_loca_2",
-
             locations=dff.NAME,
             z=dff.House_Price,
         )]
@@ -103,11 +102,13 @@ def update_graph(option_slctd):
             zoom=7,
             accesstoken=mapbox_access_token,
         ),
-
     )
     return container, fig
 
 
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
+    mapbox_access_token = os.getenv("mapbox_access_token")
+    data = get_data()
+    vic_map = get_map()
     app.run_server(debug=True)

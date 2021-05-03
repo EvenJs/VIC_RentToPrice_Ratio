@@ -1,3 +1,4 @@
+import os
 import requests
 from requests.exceptions import RequestException
 
@@ -7,6 +8,7 @@ url = 'https://data.gov.au/geoserver/vic-suburb-locality-boundaries-psma-adminis
 
 
 def get_geojson(url_link):
+
     try:
         res = requests.get(url_link)
         if res.status_code == 200:
